@@ -1,7 +1,7 @@
 tasks = []
 with open('day4.txt') as f:
   for line in f:
-    tasks.append( [ list(map(int, elfTask.split('-'))) for elfTask in line.strip().split(',')] )
+    tasks.append( [ [int(n) for n in elfTask.split('-')] for elfTask in line.strip().split(',')] )
 
 redundantCount = 0
 for elfPair in tasks:
