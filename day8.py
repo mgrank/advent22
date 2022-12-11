@@ -1,5 +1,5 @@
 trees = []
-with open('day8test.txt') as f:
+with open('day8.txt') as f:
   for line in f:
     tree_line = [int(tree) for tree in list(line.strip())]
     trees.append(tree_line)
@@ -23,3 +23,45 @@ for x_range, y_range in look_directions:
 
 visible = sum([sum(line) for line in visibility])
 print(visible)
+
+#part2
+def calcScenicScore(trees, x, y):
+  my_height = trees[y][x]
+  score = 1
+  x1 = x
+  while x1 < len(trees[0]) - 1:
+    x1 += 1
+    if trees[y][x1] >= my_height:
+      break
+  score *= x1 - x
+
+  x1 = x
+  while x1 > 0:
+    x1 -= 1
+    if trees[y][x1] >= my_height:
+      break
+  score *= x - x1
+
+  y1 = y
+  while y1 < len(trees) - 1:
+    y1 += 1
+    if trees[y1][x] >= my_height:
+      break
+  score *= y1 - y
+
+  y1 = y
+  while y1 > 0:
+    y1 -= 1
+    if trees[y1][x] >= my_height:
+      break
+  score *= y - y1
+
+  return score
+
+max_score = 0
+
+for y in range(len(trees)):
+  for x in range(len(trees[0])):
+    max_score = max(max_score, calcScenicScore(trees, x, y))
+
+print(max_score)
