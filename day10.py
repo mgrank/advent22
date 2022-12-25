@@ -6,13 +6,20 @@ with open('day10.txt') as f:
     if line[0] == 'a':
       instructions.append( int(line[5:-1]) )
 
-X = [1] #value of X after Nth cycle. X[0] - after 0 cycle i.e. initial, X[1] after 1st cycle completes etc
+X = 1
 crt_line = []
+interesting_cycles = iter([20, 60, 100, 140, 180, 220, 999])
+next_interesting = next(interesting_cycles)
+signal_str = 0
 for cycle in range(len(instructions)):
-  X.append( X[-1] + instructions[cycle] )
+  #part1
+  if cycle == next_interesting - 1:
+    signal_str += next_interesting * X
+    next_interesting = next(interesting_cycles)
 
+  #part2
   crt_pos = cycle % 40
-  if abs(crt_pos - X[cycle]) <= 1:
+  if abs(crt_pos - X) <= 1:
     crt_line.append('#')
   else:
     crt_line.append('.')
@@ -21,9 +28,7 @@ for cycle in range(len(instructions)):
     print(''.join(crt_line))
     crt_line = []
 
-interesting_cycles = [20, 60, 100, 140, 180, 220]
-signal_str = 0
-for i in interesting_cycles:
-  signal_str += X[i-1] * i
+  X += instructions[cycle]
+
 print(signal_str)
 
