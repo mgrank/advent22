@@ -1,60 +1,29 @@
 with open('day10.txt') as f:
-  instructions = [line.strip().split() for line in f]
+  #turn 'noop' instruction into [0] and 'addx N' instruction into [0, N]
+  instructions = []
+  for line in f:
+    instructions.append(0)
+    if line[0] == 'a':
+      instructions.append( int(line[5:-1]) )
 
-print(instructions)
+X = [1] #value of X after Nth cycle. X[0] - after 0 cycle i.e. initial, X[1] after 1st cycle completes etc
+crt_line = []
+for cycle in range(len(instructions)):
+  X.append( X[-1] + instructions[cycle] )
 
-prevX = X = 1
-cycle = 0
-interesting_cycles = (g for g in [20, 60, 100, 140, 180, 220])
-next_interesting = next(interesting_cycles)
-sum_signal = 0
-
-for i in instructions:
-  if i[0] == 'noop':
-    cycle += 1
-  elif i[0] == 'addx':
-    dx = int(i[1])
-    cycle += 2
-    prevX = X
-    X += dx
-
-  if cycle >= next_interesting:
-    sum_signal += next_interesting * prevX
-    try:
-      next_interesting = next(interesting_cycles)
-    except:
-      break
-
-print(sum_signal)
-
-#part2
-crt = []
-X = 1
-i = iter(instructions)
-ilen = 1
-instr = None
-for cycle in range(240):
-  ilen -= 1
-  if ilen == 0:
-    if instr and instr[0] == 'addx':
-      dx = int(instr[1])
-      X += dx
-
-    instr = next(i)
-    if instr[0] == 'noop':
-      ilen = 1
-    elif instr[0] == 'addx':
-      ilen = 2
-
-  if abs(cycle % 40 - X) <= 1:
-    crt.append('#')
+  crt_pos = cycle % 40
+  if abs(crt_pos - X[cycle]) <= 1:
+    crt_line.append('#')
   else:
-    crt.append('.')
+    crt_line.append('.')
 
-print(crt)
-print(''.join(crt[:40]))
-print(''.join(crt[40:80]))
-print(''.join(crt[80:120]))
-print(''.join(crt[120:160]))
-print(''.join(crt[160:200]))
-print(''.join(crt[200:]))
+  if crt_pos == 39: #crt line complete
+    print(''.join(crt_line))
+    crt_line = []
+
+interesting_cycles = [20, 60, 100, 140, 180, 220]
+signal_str = 0
+for i in interesting_cycles:
+  signal_str += X[i-1] * i
+print(signal_str)
+
