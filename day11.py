@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Callable, List
-
+from typing import Callable
+from functools import reduce
 @dataclass
 class Monkey:
     items : list[int]
@@ -16,6 +16,7 @@ class Monkey:
       return self.throw_false
 
 monkeys : list[Monkey] = []
+supermod : int = 1
 
 def strOper(s: str) -> Callable[[int], int]:
   return lambda old: eval(s)
@@ -29,6 +30,7 @@ with open('day11.txt') as f:
     start_items = [int(item) for item in monkey_lines[1].split(':')[-1].split(',')]
     operation = monkey_lines[2].split('=')[-1]
     test = int(monkey_lines[3].split(' ')[-1])
+    supermod *= test
     throw_true = int(monkey_lines[4].split(' ')[-1])
     throw_false = int(monkey_lines[5].split(' ')[-1])
     new_monkey = Monkey(start_items, strOper(operation), createTest(test), throw_true, throw_false)
@@ -37,17 +39,14 @@ with open('day11.txt') as f:
     if not delimiter:
       break
 
-for round in range(20):
+for round in range(10000):
   for monkey in monkeys:
     for item in monkey.items[:]:
       monkey.inspections += 1
-      new_worry = monkey.operation(item) // 3
+      new_worry = monkey.operation(item) % supermod
       who_throw_to = monkey.whoThrowTo(new_worry)
       monkey.items.remove(item)
       monkeys[who_throw_to].items.append(new_worry)
 
 top2 = sorted(monkeys, key=lambda monkey: monkey.inspections)[-2:]
 print(top2[0].inspections * top2[1].inspections)
-
-
-
