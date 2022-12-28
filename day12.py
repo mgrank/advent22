@@ -7,12 +7,9 @@ with open('day12.txt') as f:
     for col in range(len(map[row])):
       if map[row][col] == 'S':
         start = (col, row)
-        map[row][col] = 'a'
       elif map[row][col] == 'E':
         end = (col, row)
-        map[row][col] = 'z'
 
-print(map)
 print(start, end)
 
 def getNeighbors(map, x, y):
@@ -31,36 +28,46 @@ def getNeighbors(map, x, y):
 def canClimb(map, point_from, point_to):
   elev_from = map[point_from[1]][point_from[0]]
   elev_to   = map[point_to[1]][point_to[0]]
+  if elev_from == 'S':
+    elev_from = 'a'
+  if elev_from == 'E':
+    elev_from = 'z'
+  if elev_to == 'S':
+    elev_to = 'a'
+  if elev_to == 'E':
+    elev_to = 'z'
   if ord(elev_from) - ord(elev_to) >= -1:
     return True
   return False
 
-def bfs(map, start, end):
+def bfs_descent_until(map, start_coords, target_cell):
   to_visit = deque()
-  to_visit.append(start)
-  visited = {start}
+  to_visit.append(start_coords)
+  visited = {start_coords}
   come_from = {}
 
   while len(to_visit) > 0:
     curr = to_visit.popleft()
-    if curr == end:
+    if map[curr[1]][curr[0]] == target_cell:
       break
     for n in getNeighbors(map, curr[0], curr[1]):
       if n not in visited:
-        if canClimb(map, curr, n):
+        if canClimb(map, n, curr):
           to_visit.append(n)
           visited.add(n)
           come_from[n] = curr
 
-  return come_from
+  path = []
+  point = curr
+  while point in come_from:
+    path.append(point)
+    point = come_from[point]
+  return path
 
-come_from = bfs(map, start, end)
-print(come_from)
-path = []
-point = end
-while point in come_from:
-  path.append(point)
-  point = come_from[point]
+#part 1
+path = bfs_descent_until(map, end, 'S')
+print(len(path))
 
-print(path)
+#part 2
+path = bfs_descent_until(map, end, 'a')
 print(len(path))
