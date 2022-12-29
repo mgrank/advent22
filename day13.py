@@ -1,8 +1,40 @@
-def parseList(list_str: str) -> list:
+class ComparableList(list):
+  def checkOrder(pair1, pair2) -> int: #-1 not right, 0 equal, 1 right
+    for i in range( min(len(pair1), len(pair2)) ):
+      p1 = pair1[i]
+      p2 = pair2[i]
+      if type(p1) == int and type(p2) == int:
+        if p1 == p2:
+          continue
+        if p1 < p2: return 1
+        if p1 > p2: return -1
+
+      if type(p1) == int:
+        p1 = [p1]
+      if type(p2) == int:
+        p2 = [p2]
+
+      #compare lists
+      res = ComparableList.checkOrder(p1, p2)
+      if res != 0:
+        return res
+
+    if len(pair1) < len(pair2): return 1
+    elif len(pair1) > len(pair2): return -1
+    return 0
+
+  def __lt__(self, other):
+    return ComparableList.checkOrder(self, other) == 1
+
+  def __eq__(self, other):
+    return ComparableList.checkOrder(self, other) == 0
+
+
+def parseList(list_str: str) -> ComparableList:
   if list_str[0] != '[':
     return int(list_str)
 
-  real_list = []
+  real_list = ComparableList()
   list_str = list_str[1:-1]
   list_tokens = []
   bracket_level = 0
@@ -25,37 +57,13 @@ def parseList(list_str: str) -> list:
 
   return real_list
 
-def checkPairOrder(pair1, pair2) -> int: #-1 not right, 0 equal, 1 right
-  for i in range( min(len(pair1), len(pair2)) ):
-    p1 = pair1[i]
-    p2 = pair2[i]
-    if type(p1) == int and type(p2) == int:
-      if p1 == p2:
-        continue
-      if p1 < p2: return 1
-      if p1 > p2: return -1
-
-    if type(p1) == int:
-      p1 = [p1]
-    if type(p2) == int:
-      p2 = [p2]
-
-    #compare lists
-    res = checkPairOrder(p1, p2)
-    if res != 0:
-      return res
-
-  if len(pair1) < len(pair2): return 1
-  elif len(pair1) > len(pair2): return -1
-  return 0
-
 with open('day13.txt') as f:
   pair_index = 1
   sum = 0
   while True:
     pair1 = parseList( f.readline().strip() )
     pair2 = parseList( f.readline().strip() )
-    if checkPairOrder(pair1, pair2) == 1:
+    if pair1 < pair2:
       sum += pair_index
 
     delimiter = f.readline()
@@ -65,6 +73,21 @@ with open('day13.txt') as f:
     pair_index += 1
 
 print(sum)
+
+#part2
+with open('day13.txt') as f:
+  packets = [ parseList(line.strip()) for line in f if line != '\n']
+  div1, div2 = parseList('[[2]]'), parseList('[[6]]')
+  packets.extend([div1, div2])
+  packets.sort()
+  decoder_key = 1
+  for i in range(len(packets)):
+    if packets[i] == div1 or packets[i] == div2:
+      decoder_key *= i+1
+
+print(decoder_key)
+
+
 
 assert parseList('9') == 9
 assert parseList('999') == 999
