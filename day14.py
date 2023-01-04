@@ -1,6 +1,7 @@
 from collections import namedtuple, defaultdict
 from bisect import bisect, bisect_left, insort
 from copy import deepcopy
+from typing import Callable
 
 Point = namedtuple("Point", 'x y')
 
@@ -22,35 +23,29 @@ def findBottom(figures: list[list[int]]) -> int:
         bottom = point.y
   return bottom
 
-bottom = findBottom(lines) + 2
-
 sand_start = Point(500, 0)
 
-columns = defaultdict(list)
-columns2 = defaultdict(lambda: list([bottom]))
+def createColumnStruct(lines: list[list[Point]], dir_constr: Callable) -> dict:
+  columns = defaultdict(dir_constr)
 
-def rangeBetween(a, b):
-  if a <= b:
-    return range(a, b+1)
-  return range(a, b-1, -1)
+  def rangeBetween(a, b):
+    if a <= b:
+      return range(a, b+1)
+    return range(a, b-1, -1)
 
-for figure in lines:
-  for i in range(len(figure)-1):
-    p1, p2 = figure[i], figure[i+1]
-    if p1.x == p2.x:
-      columns[p1.x].extend( rangeBetween(p1.y, p2.y) )
-      columns2[p1.x].extend( rangeBetween(p1.y, p2.y) )
-    elif p1.y == p2.y:
-      for x in rangeBetween(p1.x, p2.x):
-        columns[x].append(p1.y)
-        columns2[x].append(p1.y)
+  for figure in lines:
+    for i in range(len(figure)-1):
+      p1, p2 = figure[i], figure[i+1]
+      if p1.x == p2.x:
+        columns[p1.x].extend( rangeBetween(p1.y, p2.y) )
+      elif p1.y == p2.y:
+        for x in rangeBetween(p1.x, p2.x):
+          columns[x].append(p1.y)
 
-#sort columns
-for x, col in columns.items():
-  columns[x] = sorted(list(set(col)))
-
-for x, col in columns2.items():
-  columns2[x] = sorted(list(set(col)))
+  #deduplicate and sort columns
+  for x, col in columns.items():
+    columns[x] = sorted(list(set(col)))
+  return columns
 
 def dropSand(columns: dict[list],  start_point: Point) -> bool:
   x = start_point.x
@@ -85,11 +80,13 @@ def fillCave(columns: dict[list],  start_point: Point) -> int:
   return sand_count
 
 #part1
-print(fillCave(columns, sand_start))
+part1map = createColumnStruct(lines, list)
+print(fillCave(part1map, sand_start))
 
 #part2
-
-print(fillCave(columns2, sand_start))
+bottom = findBottom(lines) + 2
+part2map = createColumnStruct(lines, lambda: list([bottom]))
+print(fillCave(part2map, sand_start))
 
 
 
