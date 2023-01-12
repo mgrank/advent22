@@ -1,9 +1,20 @@
 from collections import namedtuple, defaultdict
-from bisect import bisect, bisect_left, insort
+from bisect import bisect, insort
+from typing import Callable, Tuple
+from sortedcontainers import SortedList
+from time import process_time
 from copy import deepcopy
-from typing import Callable
 
 Point = namedtuple("Point", 'x y')
+
+def timeFunction(f, *arg, **kwarg):
+  def wrap(*arg, **kwarg):
+    start = process_time()
+    res = f(*arg, **kwarg)
+    elapsed = process_time() - start
+    print(f'{f.__name__} run {elapsed}s')
+    return res
+  return wrap
 
 with open('day14.txt') as f:
   def listStrToInt(lstr: list[str]) -> list[int]:
@@ -72,22 +83,21 @@ def dropSand(columns: dict[list],  start_point: Point) -> bool:
       insort(col, next_stop)
       return True
 
-def fillCave(columns: dict[list],  start_point: Point) -> int:
+@timeFunction
+def fillCave(columns: dict[list],  start_point: Point) -> tuple[int, dict[list]]:
+  columns_copy = deepcopy(columns)
   sand_count = 0
-  columns = deepcopy(columns)
-  while dropSand(columns, sand_start):
+  while dropSand(columns_copy, start_point):
     sand_count += 1
-  return sand_count
+  return (sand_count, columns_copy)
 
 #part1
 part1map = createColumnStruct(lines, list)
-print(fillCave(part1map, sand_start))
+sand_count, filled_map = fillCave(part1map, sand_start)
+print(sand_count)
 
 #part2
 bottom = findBottom(lines) + 2
 part2map = createColumnStruct(lines, lambda: list([bottom]))
-print(fillCave(part2map, sand_start))
-
-
-
-
+sand_count, filled_map = fillCave(part2map, sand_start)
+print(sand_count)
