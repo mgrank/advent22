@@ -1,7 +1,6 @@
 from collections import namedtuple, defaultdict
 from bisect import bisect, insort
-from typing import Callable, Tuple
-from sortedcontainers import SortedList
+from typing import Callable
 from time import process_time
 from copy import deepcopy
 
@@ -17,14 +16,7 @@ def timeFunction(f, *arg, **kwarg):
   return wrap
 
 with open('day14.txt') as f:
-  def listStrToInt(lstr: list[str]) -> list[int]:
-    lint = []
-    for ls in lstr:
-      xstr, ystr = ls.split(',')
-      lint.append( Point(int(xstr), int(ystr)) )
-    return lint
-
-  lines = [listStrToInt(line.strip().split('->')) for line in f]
+  lines = [[ Point(*map(int, a.split(','))) for a in x.strip().split(' -> ')] for x in f]
 
 def findBottom(figures: list[list[int]]) -> int:
   bottom = 0
