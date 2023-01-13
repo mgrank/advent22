@@ -1,5 +1,4 @@
 import copy
-from re import S
 from time import process_time
 
 start_point = (500,0)
@@ -15,23 +14,18 @@ def timeFunction(f, *arg, **kwarg):
     return res
   return wrap
 
-def rangeBetween(a, b):
-  if a <= b:
-    return range(a, b+1)
-  return range(a, b-1, -1)
-
 with open('day14.txt') as f:
   for fline in f:
     #tuples are 4-5x times faster than namedtuples
     line = [tuple(map(int, a.split(','))) for a in fline.strip().split(' -> ')]
     for p, p_next in zip(line, line[1:]):
-      px, py = p
-      px_next, py_next = p_next
+      px, px_next = sorted([p[0], p_next[0]])
+      py, py_next = sorted([p[1], p_next[1]])
       if px == px_next:
-        for y in rangeBetween(py, py_next):
+        for y in range(py, py_next+1):
           map_set.add( (px, y) )
       elif py == py_next:
-        for x in rangeBetween(px, px_next):
+        for x in range(px, px_next+1):
           map_set.add( (x, py) )
 
 max_depth = max(map_set, key=lambda p: p[1])[1]
